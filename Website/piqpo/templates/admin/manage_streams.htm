@@ -1,0 +1,26 @@
+{--extends file="admin_root.htm"--}
+{--block name=title--}Manage Streams{--/block--}
+
+{--block name=body--}
+
+<div class="section_title">Manage Streams</div>
+
+<table>
+   <tr>
+      <td>Stream name</td>
+      <td>Actions</td>
+   </tr>
+{--foreach $streams as $stream--}
+{--strip--}
+   <tr>
+      <td>{--$stream.name--}</td>
+      <td>
+		<a href="/stream_feed.html?stream_id={--$stream.stream_id--}">[CONFIGURE FEEDS]</a>
+		<a href="/list_slides.html?stream={--$stream.stream_id--}">[VIEW SLIDES]</a>
+	  </td> 
+   </tr>
+{--/strip--}
+{--/foreach--}
+</table>
+
+{--/block--}

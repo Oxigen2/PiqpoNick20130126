@@ -1,0 +1,219 @@
+<?php
+require_once(getenv("DOCUMENT_ROOT")."/inc_piqpo.php");
+
+$tags = array();
+
+$templateManager = new TemplateManager();
+$fileArray = $templateManager->getSlideTemplates();
+$templateFiles = array();
+foreach ($fileArray as $file)
+{
+	$templateFiles[$file] = $file;
+}
+
+$transformManager = new TransformManager();
+$fileArray = $transformManager->getTransformFiles();
+$noFileString = "-none-";
+$transformFiles = array($noFileString => $noFileString);
+foreach ($fileArray as $file)
+{
+	$transformFiles[$file] = $file;
+}
+
+$status = "";
+$error = array();
+$value = array();
+
+// Process the POST command
+if ($_SERVER['REQUEST_METHOD'] == 'POST')
+{	
+	// Validate name
+	if (isset($_POST['name']) && !empty($_POST['name']))
+	{
+		$value['name'] = htmlentities($_POST['name']);
+	}
+	else
+	{
+		$error['name'] = "Field must be set";
+	}
+
+	// Validate url
+	if (isset($_POST['url']) && !empty($_POST['url']))
+	{
+		$value['url'] = htmlentities($_POST['url']);
+	}
+	else
+	{
+		$error['url'] = "Field must be set";
+	}
+	
+	// Validate max slides
+	if (isset($_POST['max_slides']) && !empty($_POST['max_slides']))
+	{
+		if (ctype_digit($_POST['max_slides']))
+		{
+			$value['max_slides'] = $_POST['max_slides'];
+		}
+		else
+		{
+			$error['max_slides'] = "Must be blank or an integer";
+		}
+	}
+	else
+	{
+		$value['max_slides'] = "";
+	}
+	
+	// Validate pause
+	if (isset($_POST['slide_pause']) && !empty($_POST['slide_pause']))
+	{
+		if (ctype_digit($_POST['slide_pause']) && ($_POST['slide_pause'] > 0))
+		{
+			$value['slide_pause'] = $_POST['slide_pause'];
+		}
+		else
+		{
+			$error['slide_pause'] = "Must be a positive integer";
+		}
+	}
+	else
+	{
+		$error['slide_pause'] = "Must be set";
+	}
+	
+	// Validate poll frequency
+	if (isset($_POST['poll_frequency']) && !empty($_POST['poll_frequency']))
+	{
+		if (ctype_digit($_POST['poll_frequency']) && ($_POST['poll_frequency'] > 0))
+		{
+			$value['poll_frequency'] = $_POST['poll_frequency'];
+		}
+		else
+		{
+			$error['poll_frequency'] = "Must be a positive integer";
+		}
+	}
+	else
+	{
+		$error['poll_frequency'] = "Must be set";
+
+	}
+	
+	// Validate template file
+	if (isset($_POST['template_file']))
+	{
+		if (array_key_exists($_POST['template_file'], $templateFiles))
+		{
+			$value['template_file'] = $_POST['template_file'];
+		}
+		else
+		{
+			$error['template_file'] = "Template file doesn't exist";
+		}
+	}
+	else
+	{
+		$error['template_file'] = "File must be supplied";
+	}
+	
+	// Validate hidden feed
+	if (isset($_POST['feed_id']))
+	{
+		if (ctype_digit($_POST['feed_id']))
+		{
+			$value['feed_id'] = $_POST['feed_id'];
+		}
+		else
+		{
+			$error['message'] = "Invalid form input";
+		}
+	}	
+
+	// Transform files
+	if (isset($_POST['transform_file']))
+	{
+		if (($_POST['transform_file'] == $noFileString))
+		{
+			$value['transform_file'] = "";		
+		}
+		else
+		{
+			$value['transform_file'] = $_POST['transform_file'];
+		}
+	}
+	
+	if (count($error) > 0)
+	{
+		if (!isset($error['message']))
+		{
+			$error['message'] = "Correct errors on form";
+		}
+	}
+	else
+	{
+		$returnValue = new ReturnValue;
+		if (isset($value['feed_id']))
+		{
+			// This is an update
+			$feedController = FeedControllerFactory::createFeedController($value['feed_id']);
+			
+			$feedController->modify($value['name'], $value['slide_pause'], $value['poll_frequency'], $value['template_file'], $value['max_slides'], $value['url'], $value['transform_file']);
+					
+			// Just assuming success on an update for the minute
+			$returnValue->setId($value['feed_id']);
+			$status = "Feed updated";
+		}
+		else
+		{
+			// This is an insert
+			$returnValue = HtmlFeedController::create($value['name'], $value['slide_pause'], $value['poll_frequency'], $value['template_file'], $value['max_slides'], $value['url'], $value['transform_file']);
+			
+			if ($returnValue->success())
+			{			
+				$status = "New feed inserted";
+				$value = array();
+			}
+		}
+		
+		if (!$returnValue->success())
+		{
+			$error['message'] = $returnValue->errorText();
+		}
+	}
+}
+
+// If this is an update set the current values
+if (isset($_GET['feed_id']))
+{
+	$feedController = FeedControllerFactory::createFeedController($_GET['feed_id']);
+	
+	$value['feed_id'] = $_GET['feed_id'];
+	$value['name'] = $feedController->name();
+	$value['max_slides'] = $feedController->maxSlides();
+	$value['slide_pause'] = $feedController->pause();
+	$value['poll_frequency'] = $feedController->pollFrequency();
+	$value['url'] = $feedController->sourceUrl();
+	$value['template_file'] = $feedController->templateFile();	
+	$value['transform_file'] = $feedController->transformFile();	
+	
+}
+
+// Set default values if not set
+if (!isset($value['poll_frequency']))
+{
+	$value['poll_frequency'] = RSSFeedController::defaultPollFrequency();
+}
+if (!isset($value['slide_pause']))
+{
+	$value['slide_pause'] = RSSFeedController::defaultSlidePause();
+}
+
+$tags['template_files'] = $templateFiles;
+$tags['transform_files'] = $transformFiles;
+$tags['value'] = $value;
+$tags['error'] = $error;
+$tags['status'] = $status;
+
+$templateManager->publishAdminPage($tags, "html_feed.htm");
+
+?>

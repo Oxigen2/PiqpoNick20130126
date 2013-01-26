@@ -1,0 +1,35 @@
+<?php
+require_once(getenv("DOCUMENT_ROOT")."/inc_piqpo.php");
+
+$tags = array();
+
+if (isset($_GET['poll']) && ctype_digit($_GET['poll']))
+{
+	$feedSlideCreator = new FeedSlideCreator($_GET['poll']);
+	
+	$feedSlideCreator->processFeed();
+}
+
+if (isset($_GET['purge']) && ctype_digit($_GET['purge']))
+{
+	$feedSlideCreator = new FeedSlideCreator($_GET['purge']);
+	
+	$feedSlideCreator->purgeFeed();
+}
+
+$feedQueueManager = new FeedQueueManager();
+$feedQueueItems = $feedQueueManager->getAllFeeds();
+
+foreach ($feedQueueItems as $feedQueueItem)
+{
+	$feedController = new FeedController($feedQueueItem->feedId());
+		
+	$feedTags[] = array( 'feed_id' => $feedController->feedId(), 'name' => $feedController->name(), 'next_poll' => $feedQueueItem->nextPoll() );
+}
+
+$tags['feeds'] = $feedTags;
+
+$templateManager = new TemplateManager();
+$templateManager->publishAdminPage($tags, "manage_feeds.htm");
+
+?>

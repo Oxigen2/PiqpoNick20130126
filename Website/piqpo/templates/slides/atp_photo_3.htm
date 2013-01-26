@@ -1,0 +1,73 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" 
+    "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<style>
+	body
+	{
+		background-image: url(/piqpo/images/ATP_Background.jpg); 
+		background-position: center; 
+		background-repeat:no-repeat;
+		background-size: cover; 
+		background-color: #092564; 
+	}
+</style>
+<script src="/3rd_party/jquery/jquery-1.7.1.js"></script>
+<script src="/include/js/piqpo_slide-1.1.js"></script>	
+<script type="text/javascript">
+function setWidth(width) 
+{
+	var widthVar = width+'px';
+	document.getElementById("cont").style.width = widthVar;
+	document.getElementById("im").style.width = widthVar;
+    return true;
+}
+
+function init() 
+{
+    var newImg = new Image();
+
+    newImg.onload = function() 
+	{
+		var imgHeight = newImg.height;
+		var imgWidth = newImg.width;
+
+		var dd = browserDimensions();
+		var targetHeight = dd.height - 40;
+		var maxWidth = dd.width - 180;
+		
+		var calcWidth = Math.floor((imgWidth * targetHeight) / imgHeight); 
+	
+		setWidth(Math.min(calcWidth, maxWidth));
+		
+		return true;
+	}
+    newImg.src = "{--$item.link_A.0.href--}"; 
+}
+
+$(init);
+
+</script>
+
+<body>
+<div style="position: absolute; top: 2px; left: 2px; width: 80px;">
+	<img src="http://www.atpworldtour.com/media/main_logo.png" width="80" />
+	<span style="font-size: 80%; color: #fff; text-align: center;" >{--$item.updated|date_format--}</span>
+</div>
+
+<div id="cont" style="position:relative; margin-top: 20px; margin-left:auto; margin-right:auto; width: 600px; ">
+	<image id="im" src="{--$item.link_A.0.href--}" style="width: 600px; border: 1px solid white;" /> 
+	<div style="position: absolute; left:10px; top:10px; width: 90%; "> 		
+		<span style="background-color: #092564;font-size: 150%; font-weight: bold; color: #fff; ">
+		{--$item.title--}
+		</span>
+	</div> 
+	<div style="position: absolute; left:10px; bottom:10px; width: 70%; "> 		
+		<span style="background-color: #092564; color: #fff; ">{--$item.contentX.text--}</span>
+	</div> 
+	<div style="position: absolute; right:10px; font-size: 90%; bottom:10px; font-weight: bold; color: #fff; "> 		
+		{--$item.contentX.credit--}		 
+	</div>
+</div>
+</body>
+</html>

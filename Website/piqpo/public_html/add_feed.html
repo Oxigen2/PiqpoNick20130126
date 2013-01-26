@@ -1,0 +1,120 @@
+<?php
+require_once(getenv("DOCUMENT_ROOT")."/inc_piqpo.php");
+
+if ( isset($_POST['type']) )
+{
+    $type = $_POST['type'];
+}
+else
+{    
+    $type = $_GET['type'];
+}
+
+$tags = array();
+
+$status = "";
+$value = array();
+
+// Process the POST command
+if (isset($type) && ($_SERVER['REQUEST_METHOD'] == 'POST'))
+{
+    foreach( $_POST as $key => $val )
+    {
+        $value[$key] = htmlentities( $val );
+    }    
+    
+    $returnValue = new ReturnValue;
+      
+    $parameters = array();
+    if ($type == 'rss')
+    {
+        $parameters = array( 'url' => $value['url'] );
+    }
+        
+    if (isset($_POST['feed_id']))
+    {
+        // This is an update
+        $feedController = new FeedController($value['feed_id']);
+        $type = $feedController->feedType();
+        
+        $returnValue = $feedController->modify($value['name'], $value['slide_pause'], $value['poll_frequency'], $value['max_slides'], $value['template_file'], $value['definition_file'], $parameters );
+        
+        $status = "Update done";
+    }
+    else
+    {
+        // This is an insert
+        $returnValue = FeedController::create($value['type'], $value['name'], $value['slide_pause'], $value['poll_frequency'], $value['max_slides'], $value['template_file'], $value['definition_file'], $parameters );
+        
+        $status = "Feed inserted";
+    }
+		
+    if (!$returnValue->success())
+    {
+        $status = $returnValue->errorText();
+    }
+}
+
+// If this is an update set the current values
+if (isset($_GET['feed_id']))
+{
+	$feedController = new FeedController($_GET['feed_id']);
+	
+    $type = $feedController->feedType();
+    
+	$value['feed_id'] = $_GET['feed_id'];
+	$value['name'] = $feedController->name();
+	$value['max_slides'] = $feedController->maxSlides();
+	$value['slide_pause'] = $feedController->pause();
+	$value['poll_frequency'] = $feedController->pollFrequency();
+	$value['template_file'] = $feedController->templateFile();
+	$value['definition_file'] = $feedController->feedDefinitionFile();
+
+    if ( $type == 'rss' )
+    {    
+        $params = $feedController->parameters();    
+        $value['url'] = $params['url'];	
+    }
+}
+
+$templateManager = new TemplateManager();
+$fileArray = $templateManager->getSlideTemplates();
+sort( $fileArray );
+$templateFiles = array();
+foreach ($fileArray as $file)
+{
+	$templateFiles[$file] = $file;
+}
+
+$feedDefinitionManager = new FeedDefinitionManager();
+$fileArray = $feedDefinitionManager->getDefinitionFiles( $type );
+sort( $fileArray );
+$definitionFiles = array();
+foreach ($fileArray as $file)
+{
+	$definitionFiles[$file] = $file;
+}
+
+// Set default values if not set
+if (!isset($value['max_slides']))
+{
+	$value['max_slides'] = FeedController::defaultMaxSlides();
+}
+if (!isset($value['poll_frequency']))
+{
+	$value['poll_frequency'] = FeedController::defaultPollFrequency();
+}
+if (!isset($value['slide_pause']))
+{
+	$value['slide_pause'] = FeedController::defaultSlidePause();
+}
+
+$tags['template_files'] = $templateFiles;
+$tags['definition_files'] = $definitionFiles;
+$tags['value'] = $value;
+$tags['status'] = $status;
+$tags['type'] = $type;
+
+$templateManager->publishAdminPage($tags, "add_feed.htm");
+
+?>

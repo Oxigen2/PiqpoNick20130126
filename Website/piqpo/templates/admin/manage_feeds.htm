@@ -1,0 +1,29 @@
+{--extends file="admin_root.htm"--}
+{--block name=title--}Manage Feeds{--/block--}
+
+{--block name=body--}
+
+<div class="section_title">Manage Feeds</div>
+
+<table>
+   <tr>
+      <td>Feed name</td>
+      <td>Next poll</td>
+      <td>Actions</td>
+   </tr>
+{--foreach $feeds as $feed--}
+{--strip--}
+   <tr>
+      <td style="text-align: left">{--$feed.name--}</td>
+      <td>{--$feed.next_poll--}</td>
+      <td><a href="{--$smarty.server.SCRIPT_NAME--}?poll={--$feed.feed_id--}">[POLL]</a> 
+	      <a href="/list_slides.html?feed={--$feed.feed_id--}">[VIEW]</a>
+		  <a href="{--$smarty.server.SCRIPT_NAME--}?purge={--$feed.feed_id--}">[PURGE]</a>
+		  <a href="/add_feed.html?feed_id={--$feed.feed_id--}">[MODIFY]</a>
+	  </td>
+   </tr>
+{--/strip--}
+{--/foreach--}
+</table>
+
+{--/block--}

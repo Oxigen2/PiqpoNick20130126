@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Feed>
+    <Source>
+        <RSSSource url="%url%"/>
+    </Source>
+    <Transforms>
+        <XsltTransform source="text">
+            <Xslt>
+                <xsl:stylesheet version="1.0"
+                xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+                    <xsl:output omit-xml-declaration="yes" indent="yes"/>
+                    <xsl:template match="/">
+                        <xsl:element name='transform'>
+                            <xsl:element name='text'>
+                                <xsl:value-of select="//root/text()[1]" />
+                            </xsl:element>
+                            <xsl:element name='credit'>
+                                <xsl:value-of select="//root/text()[4]" />
+                            </xsl:element>
+                        </xsl:element>
+                    </xsl:template>
+                </xsl:stylesheet>
+            </Xslt>
+        </XsltTransform>
+        <CopyValueTransform source="transform.text" target='text' mandatory='true'/>
+        <CopyValueTransform source="transform.credit" target='item_image_credit' mandatory='false'/>
+        <CopyValueTransform source='item.link_A.0.href' target='item_image' mandatory='true' />    
+    </Transforms>
+</Feed>

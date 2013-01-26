@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script type="text/javascript" src="/3rd_party/jquery/jquery-1.7.1.js"></script>
+        <title>User Home</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <style>
+    </style>
+    <script>
+        
+    function apiSuccess( resp )
+    {
+        try
+        {
+            obj = jQuery.parseJSON( resp );
+            $("#results").append( "<pre>" + syntaxHighlight(resp) + "</pre>" );                        
+        }
+        catch(err)
+        {
+            $("#results").append( resp );            
+        }
+    }    
+        
+    function apiFailure( request, status )
+    {
+        $("#results").append( "API call failure : " + status + "<br/>" );
+    }    
+    
+    function callAPI( method, params )
+    {
+        params.command = method;
+        $.ajax(
+            {
+            type: "GET",			
+            url: "/api/handler.php",
+            data: params,
+            cache: false,
+            success: apiSuccess,
+            error: apiFailure
+            });
+    }
+   
+    function showUserDetails()
+    {
+        var params = new Object;
+                
+        callAPI( "getUserDetails", params );
+    }
+    
+
+    </script>
+    </head>   
+    
+    <body>
+    </body>
+</html>

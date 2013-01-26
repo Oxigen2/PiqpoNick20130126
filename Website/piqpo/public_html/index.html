@@ -1,0 +1,80 @@
+<?php
+require_once(getenv("DOCUMENT_ROOT")."/inc_piqpo.php");
+
+$publisher = new Publisher();
+$userManager = new UserManager();
+$cookieManager = new PiqpoCookieManager();
+$linkManager = new PiqpoLinkManager();
+
+// Deal with logging out.
+if ($linkManager->logoutParam())
+{
+	$cookieManager->clearUserCookie();
+	$linkManager->redirect($linkManager->homeLink());
+}
+
+// If user cookie is set then redirect to user home
+$userId = $userManager->getUserId(false);
+if (strlen($userId) > 0)
+{
+	$linkManager->redirect($linkManager->userHomeLink());
+}
+
+// Process forms
+if ($_SERVER['REQUEST_METHOD'] == 'POST')
+{
+	// Process attempt to add new user
+	if ($userManager->addUserFormSubmitted())
+	{
+		$returnValue = $userManager->processAddUserForm();	
+		if ($returnValue->success())
+		{
+			$userId = $returnValue->id();
+		}
+		else
+		{
+			$publisher->addLine("<span class=change_status>");
+			$publisher->addLine("User not added: <br>");
+			$publisher->addLine($returnValue->errorText());			
+			$publisher->addLine("<hr />");			
+			$publisher->addLine("</span>");
+		}
+	}
+	
+	// Process log in attempt
+	if ($userManager->loginUserFormSubmitted())
+	{
+		$returnValue = $userManager->processLoginUserForm();	
+		if ($returnValue->success())
+		{
+			$userId = $returnValue->id();
+		}
+		else
+		{
+			$publisher->addLine("<span class=change_status>");
+			$publisher->addLine("Login failed.<br>");
+			$publisher->addLine($returnValue->errorText());
+			$publisher->addLine("<hr />");			
+			$publisher->addLine("</span>");
+		}
+	}
+	
+	if (strlen($userId) > 0)
+	{
+		// Successfully logged in, redirect to user home.
+		$cookieManager->setUserCookie($userId);
+		$linkManager->redirect($linkManager->userHomeLink());
+	}
+}
+
+// Only here if not logged in.
+
+$publisher->addLine("<div class=block>Supply user log in:</div>");
+$publisher->addLine($userManager->loginUserForm($linkManager->currentLink()));
+
+$publisher->addLine("<div class=block><hr>Or enter new user information below:</div>");
+$publisher->addLine($userManager->addUserForm($linkManager->currentLink()));
+
+$publisher->publishPage("Home");
+ 
+?>

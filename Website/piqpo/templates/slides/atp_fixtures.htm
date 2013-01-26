@@ -1,0 +1,75 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" 
+    "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script src="/include/js/piqpo_slide-1.1.js"></script>	
+<style>
+	html
+	{
+		height: 100%; 	
+	}
+	body
+	{
+		height: 100%;		
+		margin: 0; 
+		padding: 0; 
+		border:0;		
+		background-image: url(/piqpo/images/ATP_Background.jpg); 
+		background-position: center; 
+		background-repeat:no-repeat;
+		background-size: cover; 
+		background-color: #092564; 
+	}
+	table
+	{
+		border: 1px solid white;
+		text-align: center;
+		background-color: #092564; 
+		color: #fff;
+		margin-left: auto;
+		margin-right: auto;
+	}
+	td
+	{
+		border: 1px solid white;
+	}
+	.title
+	{
+		font-size: 150%;
+	}
+	.strap
+	{
+		font-size: 120%;
+		text-align: left;
+	}
+</style>
+<body>
+	<table>
+		<tr>
+			<td colspan="3">
+				<span class="title">ATP Tour Fixtures</span>
+			</td>
+		</tr>
+		<tr>
+			<td>DATE</td>
+			<td>TOURNAMENT</td>
+			<td>VENUE</td>
+		</tr>
+
+		{--section name=p loop=10--}
+		<tr>		
+			<td>{--$fixture[p].date|date_format:"%d %b"--}</td>
+			<td>{--$fixture[p].tournament--}</td>
+			<td>{--$fixture[p].venue--}</td>
+		</tr>
+		{--/section--}
+
+		<tr>
+			<td colspan="3">
+				<span class="strap">Every Shot. Every Point. Every Game Counts.</span>
+			</td>
+		</tr>
+		
+	</table>
+</body>
+</html>

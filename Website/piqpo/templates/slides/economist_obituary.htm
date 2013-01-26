@@ -1,0 +1,156 @@
+<!doctype html>
+
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<style>
+	html
+	{
+		height: 100%;
+	}
+	body
+	{
+		height: 100%; margin: 0; padding: 0; border:0;
+		background-color: #fff;
+		overflow: hidden;
+	}
+
+	#background
+	{
+		position:absolute;
+		z-index:101;
+		left:50%;
+		top:50%;
+		background-color: #fff;
+	}
+
+	#photo
+	{
+		position:absolute;
+		z-index:103;
+		left:50%;
+		top:50%;
+		border: 1px solid black;
+	}
+
+	#logo
+	{
+		position:absolute;
+		z-index:104;
+		width:80px;
+	}
+	#title
+	{
+		position:absolute;
+		z-index:106;
+		width:85%;
+	}
+	#title_text
+	{
+		background-color:#000;
+		font-weight:bold;
+		color:#fff;
+	}
+	#date
+	{
+		position:absolute;
+		z-index:107;
+		width:60%;
+		text-align:right;
+	}
+	#date_text
+	{
+		background-color:#000;
+		color:#fff;
+
+	}
+</style>
+
+<script type="text/javascript" src="/include/js/piqpo_slide-1.1.js"></script>
+<script type="text/javascript" src="/3rd_party/jquery/jquery-1.7.1.js"></script>
+
+<script>
+
+function init()
+{
+    var newImg = new Image();
+    newImg.onload = function()
+	{
+		var imgHeight = $("#img").height();
+		var imgWidth = $("#img").width();
+
+		var dd = browserDimensions();
+		var targetHeight = dd.height * 0.96;
+		var maxWidth = dd.width * 0.96;
+
+		var calcWidth = Math.min(Math.floor((imgWidth * targetHeight) / imgHeight), maxWidth);
+		var calcHeight = Math.floor( calcWidth * imgHeight / imgWidth );
+
+		$("#background").width(dd.width);
+		$("#background").height(dd.height);
+		$("#background").css('margin-left', -dd.width/2);
+		$("#background").css('margin-top', -dd.height/2);
+
+		$("#photo").width(calcWidth);
+		$("#photo").height(calcHeight);
+		$("#photo").css('margin-left', -calcWidth/2);
+		$("#photo").css('margin-top', -calcHeight/2);
+
+		$("#img").width(calcWidth);
+		$("#img").height(calcHeight);
+
+		$("#title_text").css('font-size', ((calcHeight*0.05) + 'px'));
+		$("#date_text").css('font-size', ((calcHeight*0.02) + 'px'));
+		$("#economist_logo").height(calcHeight*0.1);
+
+		$("#title").css('bottom', calcHeight*0.03);
+		$("#title").css('left', calcHeight*0.03);
+
+		$("#date").css('top', calcHeight*0.0075);
+		$("#date").css('right', calcHeight*0.0075);
+
+		$("#logo").css('top', calcHeight*0.0075);
+		$("#logo").css('left', calcHeight*0.0075);
+
+	}
+    newImg.src = "{--$item_image--}";
+}
+
+$(init);
+
+</script>
+
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-29794733-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+</head>
+<body>
+<div id="background"></div>
+<div id="photo">
+	<image id="img" src="{--$item_image--}" />
+
+	<div id="logo">
+		<image id="economist_logo" src="http://media.economist.com/sites/all/themes/econfinal/images/the-economist-logo.gif" />
+	</div>
+	<div id="title">
+		<span id="title_text">Obituary - {--$title--}</span>
+	</div>
+	<div id="date">
+		<span id="date_text">{--$date|date_format--}</span>
+	</div>
+
+</div>
+
+</body>
+</html>

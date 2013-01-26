@@ -1,0 +1,116 @@
+noddy	{
+		}
+	
+A:link    { color: #444488; text-decoration: none; font-weight: bold}
+
+A:visited { color: #444488; text-decoration: none; font-weight: bold} 
+
+A:active  { color: #444488; text-decoration: none; font-weight: bold}
+
+A:hover   { color: #888888; text-decoration: underline; font-weight: bold} 
+
+ul
+			{
+				text-align: left;
+				list-style-type: none;
+				padding: 0px;
+				margin: 0px;
+			}
+
+body		{
+				background-color: #FFFFFF;
+			}
+
+hr
+			{
+				color: #444;
+				background-color: #444;
+				height: 5px;
+				width: 80%;				
+			}
+			
+.top		{
+				background-color: #FFFFFF;
+				width: 800px;
+				font-family: 'Bookman Old Style', serif;
+				font-size: 12pt;
+                margin-left: auto;
+                margin-right: auto;				
+			}
+		
+.header 		{
+				position:relative;
+				width: 100%;
+				text-align: center;
+			}
+						
+.main		{
+				width: 100%;
+				text-align: center;
+				float: left;
+			}
+			
+.content	{
+				padding-top: 5px;
+				text-align: center;
+				float: left;
+				width: 100%;
+			}
+			
+.block		{
+				width: 100%;
+				float: left;
+			}
+			
+.section_title
+			{
+				text-align: left;
+				font-style: italic;
+				font-weight: bold;
+			}
+			
+.section_content
+			{
+				text-align: center;
+			}
+
+.error_text
+			{
+				color: #ff0000;				
+			}
+
+.change_status
+			{
+				color: #00ff00;				
+			}
+
+.remove_link
+			{
+				font-size: 10pt;		
+			}
+			
+.form		{
+				font-size: 14px;
+				width: 700px;
+                margin-left: auto;
+                margin-right: auto;				
+			}
+			
+.form_item	{
+				width: 100%;
+				float: left;
+			}
+			
+.form_prompt{
+				width: 198px;
+				float: left;
+				text-align: right;
+				padding: 1px;
+			}
+			
+.form_input	{
+				width: 498px;
+				float: right;
+				padding: 1px;
+				text-align: left;
+			}

@@ -1,0 +1,40 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" 
+    "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<script src="/piqpo/include/piqpo_slide.js"></script>	
+	<script type="text/javascript">	
+		function prepare()
+		{
+			slideSetStartFunction(startSlide, true);
+			setTimeout("ready()", 2000);
+		}
+		function ready()
+		{
+			slideReady();
+		}
+		
+		function startSlide()
+		{
+			document.getElementById('text').innerHTML="Slide started";
+			setTimeout("running()", 2000);
+		}
+		function running()
+		{
+			document.getElementById('text').innerHTML="Slide still running";
+			setTimeout("finished()", 2000);
+		}
+		function finished()
+		{
+			document.getElementById('text').innerHTML="Slide finished";
+			slideFinished();
+		}
+	</script>	
+</head>
+<body onload="prepare()">
+	<p>{$item.pubDate|date_format}</p>
+	<h1>{$item.title}</h1>
+	<p>{$item.description}</p>
+	<div id="text">Slide not started</span>
+</body>
+</html>

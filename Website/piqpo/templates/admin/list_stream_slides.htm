@@ -1,0 +1,16 @@
+{extends file="admin_root.htm"}
+{block name=title}Admin Home{/block}
+
+{block name=body}
+
+<div class="section_title">List of Slides for Stream: {$name}</div>
+
+<ul>
+{foreach $slides as $slide}
+<li>
+<a href="/piqpo/slide.php?slide={$slide}">View slide {$slide}</a>
+</li>
+{/foreach}
+</ul>
+
+{/block}

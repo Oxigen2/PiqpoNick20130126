@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Feed>
+  <Source>
+    <RSSSource url="%url%"/>
+  </Source>
+  <Transforms>
+    <CopyValueTransform source='item.article:headerImage' target='item_image' mandatory='true' />
+    <CopyValueTransform source='link' target='guid' mandatory='true' />    
+  </Transforms>
+</Feed>

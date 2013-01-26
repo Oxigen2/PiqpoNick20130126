@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Feed>
+  <Source>
+    <RSSSource url="%url%"/>
+  </Source>
+  <Transforms>
+    <LoadLinkTransform>
+      <Xslt>
+        <xsl:stylesheet version="1.0" xmlns:b="http://www.w3.org/1999/xhtml" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+          <xsl:output omit-xml-declaration="yes" indent="yes"/>
+          <xsl:template match="/">
+            <xsl:element name='transform'>
+              <xsl:element name='image'>
+                <xsl:value-of select='//b:p[@class="imageCaption"]/../b:img/@src' />
+              </xsl:element>
+              <xsl:element name='caption'>
+                <xsl:value-of select='//b:p[@class="imageCaption"]' />
+              </xsl:element>
+            </xsl:element>
+          </xsl:template>
+        </xsl:stylesheet>
+      </Xslt>
+    </LoadLinkTransform>
+    <CopyValueTransform source='transform.image' target='item_image' mandatory='true' />
+    <CopyValueTransform source='transform.caption' target='item_image_caption' mandatory='false' />
+    <!--
+    <SetValueTransform tag='item_image' value='http://www.somewhere.com/image.jpg' mandatory='true'/>        
+    <SetValueTransform tag='item_image_caption' value='Billy Bollox' mandatory='false'/>        
+    -->
+  </Transforms>
+</Feed>

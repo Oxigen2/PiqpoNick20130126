@@ -1,0 +1,82 @@
+<?php
+require_once(getenv("DOCUMENT_ROOT")."/inc_piqpo.php");
+
+$templateManager = new TemplateManager();
+$tags = array();
+
+$status = "";
+$error = array();
+$value = array();
+
+// Process the POST command
+if ($_SERVER['REQUEST_METHOD'] == 'POST')
+{	
+	// Validate name
+	if (isset($_POST['name']) && !empty($_POST['name']))
+	{
+		$value['name'] = htmlentities($_POST['name']);
+	}
+	else
+	{
+		$error['name'] = "Field must be set";
+	}
+	
+	// Validate hidden stream
+	if (isset($_POST['stream_id']))
+	{
+		if (ctype_digit($_POST['stream_id']))
+		{
+			$value['stream_id'] = $_POST['stream_id'];
+		}
+		else
+		{
+			$error['message'] = "Invalid form input";
+		}
+	}	
+	
+	if (count($error) > 0)
+	{
+		if (!isset($error['message']))
+		{
+			$error['message'] = "Correct errors on form";
+		}
+	}
+	else
+	{
+		$returnValue = new ReturnValue();
+		if (isset($value['stream_id']))
+		{
+			// This is an update
+			/*
+			if ($returnValue->success())
+			{
+				$status = "Stream updated";
+			}
+			*/
+		}
+		else
+		{
+			// This is an insert
+			$streamManager = new StreamManager();
+			$returnValue = $streamManager->addStream($value['name']);
+			if ($returnValue->success())
+			{
+				$status = "New stream inserted";
+				$value = array();
+			}
+		}
+		
+		if (!$returnValue->success())
+		{
+			$error['message'] = $returnValue->errorText();
+		}
+	}
+}
+
+$tags['value'] = $value;
+$tags['error'] = $error;
+$tags['status'] = $status;
+
+$templateManager->publishAdminPage($tags, "add_stream.htm");
+
+?>

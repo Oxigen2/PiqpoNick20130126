@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script type="text/javascript" src="/3rd_party/jquery/jquery-1.7.1.js"></script>
+        <title>Piqpo Home</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <style>
+.form_item	{
+				width: 100%;
+				float: left;
+			}
+			
+.form_prompt{
+				width: 148px;
+				float: left;
+				text-align: right;
+				padding: 1px;
+			}
+			
+.form_input	{
+				float: left;
+				padding: 1px;
+				text-align: left;
+			}
+input       {
+                width: 300px;
+            }    
+button      {
+                width: 150px;
+            }    
+.top        {
+                margin: 0 auto;
+				width: 600px;                
+            }
+    </style>
+    <script>
+        
+    function createAccountReturn( resp )
+    {
+        try
+        {
+            obj = jQuery.parseJSON( resp );
+            
+            if ( obj.status == 1 )
+            {
+                $("#status").html( "Account created" );
+            }
+            else
+            {
+                $("#status").html( "Failed to create account" );
+            }
+        }
+        catch(err)
+        {
+            $("#status").html( "Failure to parse API response " + resp );            
+        }
+    }    
+    
+    function loginReturn( resp )
+    {
+        try
+        {
+            obj = jQuery.parseJSON( resp );
+            
+            if ( obj.status == 1 )
+            {
+                $("#status").html( "Login successful" );
+            }
+            else
+            {
+                $("#status").html( "Login unsuccessful" );
+            }
+        }
+        catch(err)
+        {
+            $("#status").html( "Failure to parse API response " + resp );            
+        }
+    }    
+        
+    function apiFailure( request, status )
+    {
+        $("#status").html( "API call failure : " + status );
+    }    
+       
+    function call_createAccount( )
+    {
+        var params = new Object;
+        
+        pp = $("#createAccount_email").val();
+        if ( pp != "" )
+        {
+            params.email = pp;
+        }
+        pp = $("#createAccount_password").val();
+        if ( pp != "" )
+        {
+            params.password = pp;
+        }
+        
+        params.command = "createAccount";
+        $.ajax(
+            {
+            type: "GET",			
+            url: "/api/handler.php",
+            data: params,
+            cache: false,
+            success: createAccountReturn,
+            error: apiFailure
+            });
+    }
+    
+    function call_logIn( )
+    {
+        var params = new Object;
+        
+        pp = $("#logIn_email").val();
+        if ( pp != "" )
+        {
+            params.email = pp;
+        }
+        pp = $("#logIn_password").val();
+        if ( pp != "" )
+        {
+            params.password = pp;
+        }
+        
+        params.command = "logIn";
+        $.ajax(
+            {
+            type: "GET",			
+            url: "/api/handler.php",
+            data: params,
+            cache: false,
+            success: loginReturn,
+            error: apiFailure
+            });
+    }
+
+</script>
+</head>   
+    
+<body>
+    <div class="top">
+    <div class="form_item">
+        <div class="form_prompt"></div>
+        <div class="form_input"><span style="font-weight: bold;">Create a new piqpo account</span></div>
+    </div>    
+    <div class="form_item">
+        <div class="form_prompt">Email address</div>
+        <div class="form_input"><input id="createAccount_email" /></div>
+    </div>    
+    <div class="form_item">
+        <div class="form_prompt">Password</div>
+        <div class="form_input"><input id="createAccount_password" /></div>
+    </div>    
+    <div class="form_item">
+        <div class="form_prompt"></div>
+        <div class="form_input"><button onclick="call_createAccount()">Create account</button></div>
+    </div>       
+    <p id="status" />
+    </div>    
+    
+    <div class="top">
+    <div class="form_item">
+        <div class="form_prompt"></div>
+        <div class="form_input"><span style="font-weight: bold;">Log in to Piqpo</span></div>
+    </div>    
+    <div class="form_item">
+        <div class="form_prompt">Email address</div>
+        <div class="form_input"><input id="logIn_email" /></div>
+    </div>    
+    <div class="form_item">
+        <div class="form_prompt">Password</div>
+        <div class="form_input"><input id="logIn_password" /></div>
+    </div>    
+    <div class="form_item">
+        <div class="form_prompt"></div>
+        <div class="form_input"><button onclick="call_logIn()">Log in</button></div>
+    </div>       
+    <p id="status" />
+    </div>    
+    
+</body>
+</html>

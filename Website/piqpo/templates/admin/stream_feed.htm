@@ -1,0 +1,51 @@
+{--extends file="admin_root.htm"--}
+{--block name=title--}Manage Stream Feeds{--/block--}
+
+{--block name=body--}
+
+<div class="section_title">Add Feeds to Stream {--$stream_name--}</div>
+
+<form class=form action="{--$smarty.server.SCRIPT_NAME--}" method="POST" name="add_feed">
+
+<div class=form_item>
+<div class=form_prompt>Feed</div>
+<div class=form_input>
+{--html_options name="feed_id" options=$candidate_feeds --}
+</div>
+</div>
+
+<input type=hidden name="stream_id" id="stream_id" value="{--$stream_id--}" />
+
+<div class=form_item>
+<div class=form_prompt></div>
+<div class=form_input><input type=submit name="addFeed" value="Add Feed" /></div>
+</div>
+
+</form>
+
+<div class=block />
+
+<span class=error_text>{--$error|default:""--}</span>
+
+<hr>
+
+<div class="section_title">Existing Feeds for Stream {--$stream_name--}</div>
+
+<table>
+{--foreach $stream_feeds as $stream_feed--}
+{--strip--}
+   <tr>
+      <td>
+		<a href="{--$smarty.server.SCRIPT_NAME--}?stream_id={--$stream_id--}&remove_feed={--$stream_feed.id--}">[REMOVE]</a>
+	  </td>
+      <td>{--$stream_feed.name--}</td>
+   </tr>
+{--/strip--}
+{--/foreach--}
+</table>
+
+<hr>
+
+<a href="/piqpo/manage_streams.html">Return to Streams</a>
+
+{--/block--}

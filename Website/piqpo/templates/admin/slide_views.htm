@@ -1,0 +1,25 @@
+{--extends file="admin_root.htm"--}
+{--block name=title--}Slide {--$action--}{--/block--}
+
+{--block name=body--}
+
+<div class="section_title">Last {--$count--} slide {--$action--}</div>
+
+<table style="font-size: 11px; text-align: left;">
+   <tr style="text-align: center;">
+      <td>Time</td>
+      <td>User</td>
+      <td>Slide</td>
+   </tr>
+{--foreach $results as $row--}
+{--strip--}
+   <tr>
+      <td>{--$row.time|date_format:"H:i-d/m"--}</td>
+      <td>{--$row.user--}</td>
+      <td>{--$row.slide--}</td>
+   </tr>
+{--/strip--}
+{--/foreach--}
+</table>
+
+{--/block--}

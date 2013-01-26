@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<script src="/3rd_party/jquery/jquery-1.7.1.js"></script>
+	<script src="/include/js/piqpo_slide-1.1.js"></script>	
+	<style>
+		#host
+		{
+		}
+	</style>
+	<script type="text/javascript">	
+		function prepare()
+		{
+			var dd = browserDimensions();
+			$("#vid").height(dd.height);
+
+			$("#vid").prop('muted', true);
+			$("#vid").bind("ended", function() {slideFinished();});
+			slideSetStartFunction(startSlide, false);
+		}
+		
+		function startSlide()
+		{
+			$("#vid")[0].play();
+		}
+
+		$(prepare);
+	</script>
+</head>
+<body>
+<div id="host">
+<video id="vid">
+	<source src="/test/toss.mp4" type="video/mp4" />
+</video>
+</div>
+</body>
+</html>

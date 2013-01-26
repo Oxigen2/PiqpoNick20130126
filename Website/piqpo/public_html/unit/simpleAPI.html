@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script type="text/javascript" src="/3rd_party/jquery/jquery-1.7.1.js"></script>
+        <title>API Test</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>   
+    <style>
+        pre {outline: 1px solid #ccc; padding: 5px; margin: 5px; background: lightcyan; }
+        .string { color: green; }
+        .number { color: darkorange; }
+        .boolean { color: blue; }
+        .null { color: magenta; }
+        .key { color: red; }
+    </style>
+    <script>
+        
+    function syntaxHighlight(json) 
+    {
+        if (typeof json != 'string') 
+        {
+            json = JSON.stringify(json, undefined, 2);
+        }
+        json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+            var cls = 'number';
+            if (/^"/.test(match)) {
+                if (/:$/.test(match)) {
+                    cls = 'key';
+                } else {
+                    cls = 'string';
+                }
+            } else if (/true|false/.test(match)) {
+                cls = 'boolean';
+            } else if (/null/.test(match)) {
+                cls = 'null';
+            }
+            return '<span class="' + cls + '">' + match + '</span>';
+        });
+    }
+
+    function apiSuccess( resp )
+    {
+        $("#results").html( "<pre>" + syntaxHighlight(resp) + "</pre>" );
+    }    
+        
+    function apiFailure()
+    {
+        alert("Failure");
+    }    
+    
+    function callAPI()
+    {
+        $.ajax(
+            {
+            type: "GET",			
+            url: "http://localhost/api/handler.php?command=hello&name=fuckface",
+            cache: false,
+            success: apiSuccess,
+            error: apiFailure,
+            dataType: "json"
+            });
+    }
+    
+    </script>
+    
+    <body>
+        <div>
+            <button onclick="callAPI()">Try it</button>
+                <div id="results">             
+                </div>
+        </div>
+    </body>
+</html>

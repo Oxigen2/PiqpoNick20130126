@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<?php
+require_once(getenv("DOCUMENT_ROOT")."/inc_piqpo.php");
+
+$message = "";
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST')
+{	
+	if ((isset($_POST['email'])) && (!empty($_POST['email'])) && 
+        (isset($_POST['guid'])) && (!empty($_POST['guid'])) &&
+        (isset($_POST['name'])) && (!empty($_POST['name'])))
+    {
+        $retVal = new ReturnValue();
+        $email = $_POST['email'];
+        $guid = $_POST['guid'];
+        $name = $_POST['name'];
+        $password = $_POST['password'];
+        $stream = $_POST['stream'];
+        
+        // Create user if none exists
+        $userId = null;
+        $userManager = new UserManager();
+        $user = $userManager->getUser($email);
+        
+        if ( !isset( $user ) )
+        {
+            $retVal = $userManager->createUser($name, $password, $email);
+            $userId = $retVal->id();
+            $message = "User created<br/>";
+        }
+        else
+        {            
+            if ( $userManager->testUserPassword($user, $password) )
+            {
+                $userId = $user->userId();
+                $message = "User already exists<br/>";
+            }
+            else
+            {    
+                $userId = null;
+                $message = "Incorrect password<br/>";
+            }   
+        }
+        
+        // Register guid with user
+        if ( isset( $userId ) )
+        {
+            $deviceManager = new DeviceManager();
+            $deviceManager->registerDevice($userId, $guid);
+            
+            // Subscribe to stream
+            $streamManager = new StreamManager();
+            $streamManager->assignStream($userId, $stream);
+            
+            $message .= "Device with guid {$guid} registered for user {$name}";
+        }       
+    }
+}
+
+// List streams 
+$streamManager = new StreamManager();
+$streams = $streamManager->allStreams();
+$options = "";
+foreach( $streams as $stream )
+{
+    $options .= "<option value='{$stream->streamId()}'>{$stream->name()}</option>";
+}
+?>
+
+<html>
+    <head>
+        <title>Register GUID</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <link href="/stylesheets/piqpo.css" type="text/css" rel="stylesheet"></link>
+    </head>
+    <body style='margin-left: auto; margin-right: auto; text-align: center'>
+        <form action="/piqpo/register_guid.html" method="POST">
+        Email
+        <input type=text style='width:600px;' name="email" id="email" value='' />
+        <br/>
+        Name
+        <input type=text style='width:600px;' name="name" id="name" value='' />
+        <br/>
+        Password
+        <input type=password style='width:600px;' name="password" id="password" value='' />
+        <br/>
+        GUID
+        <input type=text style='width:600px;' name="guid" id="guid" value='' />
+        <br/>
+        Stream
+        <select name="stream" style="width:600px;">
+        <?php echo $options; ?>
+        </select>
+        <br/>
+        <input type=submit name="register" value='Register' />
+        </form>
+        <br/>
+        <?php echo $message; ?>
+    </body>
+</html>

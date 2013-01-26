@@ -1,0 +1,107 @@
+<?php
+require_once(getenv("DOCUMENT_ROOT")."/inc_piqpo.php");
+
+$userManager = new UserManager();
+$publisher = new Publisher();
+$linkManager = new PiqpoLinkManager();
+$streamManager = new StreamManager();
+
+$streams = array();
+$streams[] = new ExistingStream();
+/*
+$streams[] = new WebPageStream();
+$streams[] = new RSSStream();
+$streams[] = new KrashKardsStream();
+*/
+
+// Redirect if user isn't set
+$userId = $userManager->getUserId(true);
+$user = User::loadSingleFromDB($userId);
+
+$statusText = "";
+// Process GET commands
+$streamToRemoveId = $linkManager->extractGetParam("remove_stream");
+if ( strlen($streamToRemoveId) > 0 )
+{
+	$streamToRemove = Stream::loadSingleFromDB( $streamToRemoveId );
+	
+	if (!isset($streamToRemove)) 
+	{
+		$statusText .= "Attempt to remove non-existant stream.<br>";
+	}
+	else
+	{
+		$returnValue = $streamManager->unassignStream($userId, $streamToRemoveId);
+		
+		if ($returnValue->success())
+		{
+			$statusText .= "No longer subscribed to stream {$streamToRemove->name()}.";
+		}
+		else
+		{
+			$statusText .= $returnValue->errorText();
+		}
+	}
+}
+
+// Process POST commands
+foreach ($streams as $id => $stream)
+{ 
+	if (isset($_POST[$stream->formSubmitValue()]))
+	{
+		$returnValue = $stream->processForm($userId);
+		
+		if ($returnValue->success())
+		{
+			$stream = Stream::loadSingleFromDB($returnValue->id());
+			$statusText .= "Stream {$stream->name()} added.<br>";
+		}
+		else
+		{
+			$statusText .= $returnValue->errorText();
+		}
+	}
+}
+
+if (strlen($statusText) > 0)
+{
+	$publisher->addLine("<div class=block>");
+	$publisher->addLine($statusText, "change_status");
+	$publisher->addLine("<hr />");
+	$publisher->addLine("</div>");
+}
+
+// List the existing streams 
+$userStreams = $streamManager->userStreams($userId); 
+
+$publisher->addLine("Subscribed streams for {$user->name()}", "section_title");
+	
+if (count($userStreams) == 0)
+{
+	$publisher->addLine("No streams are currently configured.", "section_content");
+}
+else
+{
+	$publisher->addLine("<ul>");
+	foreach($userStreams as $id => $stream)
+	{
+		$removeLink = "<span class=remove_link><a href='{$linkManager->currentLink()}?remove_stream={$stream->streamId()}'>[REMOVE]</a></span>";
+		$publisher->addLine("<li>$removeLink {$stream->name()}</li>");
+	}
+	$publisher->addLine("</ul>");
+}
+
+// Add new streams
+foreach ($streams as $id => $stream)
+{ 
+	$publisher->addLine("<div class=block>");
+	$publisher->addLine("<hr />");
+	$publisher->addLine($stream->titleText(), "section_title");
+	$publisher->addLine($stream->generateForm($linkManager->currentLink(), $userId)); 
+	$publisher->addLine("</div>");
+} 
+
+// Publish the page  
+$publisher->publishUserPage( "Oxigen" );
+
+?>

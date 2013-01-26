@@ -1,0 +1,23 @@
+{--extends file="feed_root.htm"--}
+
+{--block name=title--}HTML Feed Admin{--/block--}
+
+{--block name=extra_form_fields--}
+
+<div class=form_item>
+<div class=form_prompt>Web page URL</div>
+<div class=form_input>
+<input type=text style='width:250px;' name="url" id="url" value="{--$value.url|default:""--}" />
+<span class=error_text>{--$error.url|default:""--}</span>
+</div>
+</div>
+
+<div class=form_item>
+<div class=form_prompt>Transform file</div>
+<div class=form_input>
+{--html_options name="transform_file" options=$transform_files selected={--$value.transform_file|default:""--}--}
+<span class=error_text>{--$error.transform_file|default:""--}</span>
+</div>
+</div>
+
+{--/block--}

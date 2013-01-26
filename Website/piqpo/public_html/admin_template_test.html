@@ -1,0 +1,10 @@
+<?php
+require_once(getenv("DOCUMENT_ROOT")."/inc_piqpo.php");
+
+$tags = array('body' => "Oh yes");
+
+$templateManager = new TemplateManager();
+
+$templateManager->publishAdminPage($tags, "test.tpl");
+
+?>

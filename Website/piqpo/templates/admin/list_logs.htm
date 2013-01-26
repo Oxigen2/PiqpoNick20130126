@@ -1,0 +1,25 @@
+{--extends file="admin_root.htm"--}
+{--block name=title--}List logs{--/block--}
+
+{--block name=body--}
+ 
+<div class="section_title">Logfiles</div>
+
+<table style="font-size: 11px; text-align: left; margin-left: auto; margin-right: auto;">    
+{--foreach $files as $file--}
+<tr>
+    <td>
+        <a href="{--$file.fullpath--}">{--$file.name--}</a>
+    </td>
+    <td>
+        {--$file.time|date_format:"H:i d M Y"--}
+    </td>
+    <td>
+        {--$file.size--}                
+    </td>
+</tr>
+{--/foreach--}
+</table>
+
+
+{--/block--}

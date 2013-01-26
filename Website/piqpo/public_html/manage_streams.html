@@ -1,0 +1,21 @@
+<?php
+require_once(getenv("DOCUMENT_ROOT")."/inc_piqpo.php");
+
+$tags = array();
+$streamTags = array();
+
+$streamManager = new StreamManager();
+$streams = $streamManager->allStreams();
+
+foreach ($streams as $stream)
+{
+	$streamTags[] = array( 'stream_id' => $stream->streamId(), 'name' => $stream->name() );
+}
+
+$tags['streams'] = $streamTags;
+
+$templateManager = new TemplateManager();
+$templateManager->publishAdminPage($tags, "manage_streams.htm");
+
+
+?>

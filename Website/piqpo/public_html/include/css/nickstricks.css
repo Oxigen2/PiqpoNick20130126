@@ -1,0 +1,94 @@
+noddy	{
+		}
+		
+body { margin-left: 3%; 
+       font-family: verdana, geneva, sans-serif;
+       color : #000000;
+       margin-right: 3%; }
+
+H1   { color: #000000;
+       background: #dddddd;
+       padding: 0.5em;
+       border: none;
+       font-weight: bold;
+       font-size: 200%;
+       text-align: center;
+     }
+
+H2   { color: #000000;
+       background: #dddddd;
+       font-weight: bold;
+       font-size: 150%;
+       padding-left: 0.5em;
+       text-align: center;
+     }
+H3   { color: #000000;
+       border: none;
+       text-decoration: none;
+       font-size: 120%;
+       font-weight: bold;
+       text-align: left;
+       padding: 0;
+     }
+
+A:link    { color: #444488; text-decoration: none; font-weight: bold}
+
+A:visited { color: #444488; text-decoration: none; font-weight: bold} 
+
+A:active  { color: #444488; text-decoration: none; font-weight: bold}
+
+A:hover   { color: #888888; text-decoration: underline; font-weight: bold} 
+
+table { font-size: 12pt;
+        color : #000000;
+      }
+
+.txt { 
+       font-size: 12pt;
+       color : #000000;
+     }
+
+
+.image-right,
+.image-right-300,
+.image-right-200 { float: right;
+               padding-left: 1em; 
+               padding-right: 1em;
+               border-width: thin;
+               border-color: #000000; 
+             }
+
+.image-right { width: 400px;
+            }
+
+.image-right-200 { width: 200px;
+            }		 
+			
+.image-right-300 { width: 300px;
+            }		 
+			 
+.cap { font-style: italic; 
+       font-size: 90%;
+       width: 100%;
+     }
+
+.quote { font-style: italic;
+         padding-left: 5em;
+       }
+
+.logo { text-align: center;
+        color: black;
+        font-weight: bold;
+      }
+
+.logo_n { font-style: italic;
+          font-size: 30pt;          
+        }
+
+.logo_t { 
+          font-size: 30pt;
+        }
+
+.contents {
+           text-align: right;
+          }

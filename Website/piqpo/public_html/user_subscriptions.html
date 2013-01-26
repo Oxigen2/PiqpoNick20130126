@@ -1,0 +1,39 @@
+<?php
+require_once(getenv("DOCUMENT_ROOT")."/inc_piqpo.php");
+
+$userManager = new UserManager();
+$streamManager = new StreamManager();
+$linkManager = new PiqpoLinkManager();
+
+$userEmail = $linkManager->extractGetParam("user");
+$userEmail = "nick@nickaltmann.net";
+
+$query = array("email" => "'".$userEmail."'");
+$user = User::loadFromDB($query);
+
+$output = "";
+
+if ( count($user) == 1 )
+{
+	$userId = $user[0]->userId();
+	
+	$streams = StreamManager::userStreams($userId);
+	
+	$output .= "<items>\n";
+	foreach ($streams as $id => $stream)
+	{
+		$output .= "<item src='{$stream->sourceUrl()}' link='{$stream->targetLink()}' pause='{$stream->pause()}' />\n";
+	}
+	$output .= "</items>\n";
+}
+else
+{
+	$output .= "<error>There were ".count($user)." records returned by query for email {$userEmail}.</error>";
+}
+
+//print $output;
+?>
+<items>
+<item src="http://thedailymash.co.uk/" link="http://thedailymash.co.uk/" pause="10" />
+<item src="http://www.thameshareandhounds.org.uk/index2.php" link="http://www.thameshareandhounds.org.uk/index2.php" pause="10" />
+</items>

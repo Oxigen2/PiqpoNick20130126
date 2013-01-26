@@ -1,0 +1,462 @@
+<!doctype html>
+<html>
+<head>
+<link href="/include/css/frameholder.css" type="text/css" rel="stylesheet" />
+<style>
+	.debug 	{ color: #000; background-color: #dd0; z-index: 10;}
+	.bottomRight { position: absolute; bottom: 0px; right: 0px; }
+	.bottomLeft  { position: absolute; bottom: 0px; left: 0px; }
+</style>
+<script src="/3rd_party/jquery/jquery-1.7.1.js"></script>
+<script src="/include/js/slidehost-1.1.js"></script>
+<script type="text/javascript">
+
+	var currentCycle=0;		// Cycle being processed
+	var lastLoadCycle=0;	// Last cycle on which the xml doc was loaded
+	var nextLoadCycle=0;	// Next cycle when the doc needs loading
+	var lastLoadTime=0;		// Time that the list of itmes was last loaded
+	var totalItems=0;		// The number of items in the retrieved list
+	var runFullCycle=false;	// If true, run through all items then refresh, if false, show items randomly and refresh periodically
+	var oReq = null;		// XMLHttpRequest
+	var slideWaitingToStart=false;
+	var xmlResp;
+    var slideListUrl;
+    var user;
+    var guid;
+    var docRoot;
+	var removeFramesErrorOn=false;
+
+	var fadeLength = 400;
+	var pauseOnBlackLength = 100;
+
+	function urldecode(str) 
+	{
+		return unescape(str.replace('+', ' '));
+	}
+	
+	// Set the target link for the frame that is now being displayed
+	function setTarget(targetUrl)
+	{
+		console.log("settingTarget to " + targetUrl);
+		if (typeof(targetUrl) != 'undefined')
+		{	
+			// Need to decode first
+			var decodedUrl = urldecode(targetUrl);
+			
+			console.log("about to set target");			
+			if ((typeof(window.external) != 'undefined') && (typeof(window.external.setTargetUrl) != 'undefined'))
+			{
+				window.external.setTargetUrl(decodedUrl);
+			}
+		}
+	}
+	
+	// Just to make each xml request unique, and therefore not cached.
+	function timestamp()
+	{
+		return new Date().getTime();
+	}
+
+	function getUrlVars()
+	{
+		var vars = [], hash;
+		var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+		for(var i = 0; i < hashes.length; i++)
+		{
+			hash = hashes[i].split('=');
+			vars.push(hash[0]);
+			vars[hash[0]] = hash[1];
+		}
+		return vars;
+	}
+	
+	function submitXmlRequest()
+	{
+		console.log("submitXmlRequest to " + slideListUrl);
+		
+        $.ajax(
+            {
+            type: "GET",			
+            url: slideListUrl,
+            cache: false,
+            success: slideListSuccess,
+            error: slideListFailure,
+            dataType: "xml"
+            });
+ 	}
+	
+	function slideListSuccess( xml )
+	{	
+		console.log("slide list retrieved successfully");
+		xmlResp = xml;
+
+		resetCycle();
+	}
+
+    function setError( error )
+    {
+        removeFrames();
+        setTarget("");
+        $("<div id='noslideerror' style='color: red;'>" + error + "</div>").appendTo($("#frameholder"));	
+    }
+    
+    function removeError()
+    {
+		$("#frameholder #noslideerror").remove();
+    }
+
+	function noItemsError()
+	{
+		if ( !removeFramesErrorOn )
+		{
+            setError("You have no slides selected.");
+			removeFramesErrorOn = true;
+		}	
+	}
+	
+	function removeNoItemsError()
+	{
+        removeError();
+		removeFramesErrorOn = false;
+		init();
+	}
+	
+	function resetCycle()
+	{
+		totalItems = $(xmlResp).find('item').length;		
+		console.log("got " + totalItems + " items");
+		
+		if ( totalItems == 0 )
+		{
+			noItemsError();
+			setTimeout(submitXmlRequest, 60 * 1000);
+		}
+		else
+		{
+			if ( removeFramesErrorOn )
+			{
+				removeNoItemsError();
+			}
+			else
+			{
+				nextLoadCycle=totalItems + currentCycle;
+				lastLoadCycle=currentCycle;
+				var dd = new Date();
+				lastLoadTime = dd.getTime();
+				
+				queueNextItem();
+			}	
+		}
+	}
+	
+	function slideListFailure( jqXHR, textStatus, errorThrown )
+	{
+		console.log("error retrieving slide list " + textStatus);
+		
+		resetCycle();
+	}
+	
+	function oldFrameIndex()
+	{
+		return (currentCycle % 2);
+	}
+	
+	function newFrameIndex()
+	{
+		return ((currentCycle + 1) % 2);
+	}
+	
+	function selectFrame(index)
+	{
+		var label = "#iframe_"+index;
+		return $(label);
+	}
+
+	function selectOldFrame()
+	{
+		return selectFrame(oldFrameIndex());
+	}
+	
+	function selectNewFrame()
+	{
+		return selectFrame(newFrameIndex());
+	}
+		
+	function getElement()
+	{
+		console.log("getElement");
+
+		var index=0;
+		if (runFullCycle)
+		{
+			index = currentCycle - lastLoadCycle;
+		}
+		else
+		{
+			index = Math.floor(Math.random() * totalItems);
+		}
+
+		console.log("about to return element "+index);
+		return $(xmlResp).find('item').eq(index);
+	}
+	
+	function refreshNeeded()
+	{
+		var refresh = false;
+		if (runFullCycle)
+		{
+			if (currentCycle >= nextLoadCycle)
+			{
+				refresh = true;
+			}			
+		}
+		else
+		{
+			var dd = new Date();
+			if ((dd.getTime() - lastLoadTime) > (60 * 1000))
+			{
+				refresh = true;
+			}
+		}		
+		return refresh;
+	}
+	
+	function getItem()
+	{
+		if (refreshNeeded())
+		{
+			submitXmlRequest();
+			return null;
+		}
+		
+		console.log("about to get element");
+		x=getElement();
+		
+		var linkVal=x.attr("link");
+		var srcVal=x.attr("src");
+		var pauseVal=x.attr("pause");
+		var idVal=x.attr("id");
+
+		var retVal = {link:linkVal,src:srcVal,pause:pauseVal,id:idVal};
+		
+		return retVal;
+	}
+
+	function main()
+	{	
+		currentCycle += 1;
+		console.log("Starting cycle "+currentCycle);		
+		
+		// first remove callbacks so this isn't called twice
+		var currentFrame = selectNewFrame();		
+		clearTimeout(currentFrame.data("timeout"));
+		currentFrame.unbind("slideFinished");
+		
+		// switch between frames
+		hideSlide();
+	}
+
+	function hideSlide()
+	{
+		console.log("about to hide slide");		
+		var newFrame = selectNewFrame();
+		newFrame.fadeOut(fadeLength, pauseOnBlack );
+	}
+
+	function pauseOnBlack()
+	{
+		// While we're here, move the now faded slide out the way and restore its display
+		// Things go wrong if you try drawing the slide with a hidden display
+		var newFrame = selectNewFrame();
+		newFrame.css('left', '-3000px');
+		newFrame.fadeIn(0);
+		setTimeout( fadeSlideIn, 500 );
+	}
+	
+	function fadeSlideIn()
+	{
+		console.log("about to show slide");		
+		var oldFrame = selectOldFrame();
+		
+		var fadingOn = true;
+		if (oldFrame.data('noFadeIn'))
+		{
+			console.log("fading turned off");		
+			fadingOn = false;
+		}
+		
+		if (fadingOn)
+		{
+			// Fade out completely, ready to fade in
+			oldFrame.fadeOut(0);
+		}
+		oldFrame.css('left', '0px');
+		if (fadingOn)
+		{
+			oldFrame.fadeIn( fadeLength, primeSlide );
+		}
+		else
+		{
+			primeSlide();
+		}
+	}
+	
+	function primeSlide()
+	{	
+		console.log("about to prime slide");
+		var frame = selectOldFrame();
+		
+		// start the slide if necessary
+		slideWaitingToStart=false;
+		var startFn = frame.data('startFunction');
+		if ((typeof(startFn) !== "undefined") && (frame.data('isReady')))
+		{
+			console.log("starting slide");
+			startFn();
+		}
+		else
+		{
+			// if the slide just isn't ready yet, want it to start later when it signals that it is
+			console.log("slide not ready");
+			slideWaitingToStart=true;
+		}
+		
+		// set target link on browser if necessary
+        var redirect = formTargetLink( frame.data("slideId") );
+		console.log("redirect link is " + redirect);
+        if ( redirect.length > 0 )
+        {    
+            setTarget( redirect );
+        }
+        recordHit( frame.data("slideId") );
+				
+		queueNextItem();
+	}
+
+    function formTargetLink( slideId )
+    {
+        var redirectUrl = "";
+        var redirectRoot = "http://" + docRoot + "/slide_redirect.php?slide=" + slideId + "&";
+        
+        if ( (typeof(guid) !== "undefined") && (guid.length > 0) )
+        {
+            redirectUrl = redirectRoot + "guid=" + guid;
+        }
+        else if ( (typeof(user) !== "undefined") && user.length > 0 )
+        {
+            redirectUrl = redirectRoot + "user=" + user;  
+        }
+        
+        return redirectUrl;
+    }
+
+	function startLateSlide()
+	{
+		if( slideWaitingToStart )
+		{
+			console.log("starting late frame");
+			var frame = selectOldFrame();		
+			var startFn = frame.data('startFunction');
+			if (typeof(startFn) !== "undefined")
+			{
+				slideWaitingToStart = false;
+				startFn();
+			}
+		}
+	}
+	
+	function queueNextItem()
+	{
+		console.log("queueNextItem");		
+		var item=getItem();
+		if (item)
+		{
+			console.log("got item");
+			
+			// at this point the frames have just been swapped, old frame has just started showing
+			var newFrame = selectNewFrame();
+			var oldFrame = selectOldFrame();
+					
+			// set the new frame to set it loading
+			loadFrame(newFrame.attr("id"), item.src);
+            
+			// pause for the period associated with the frame that's just been shown
+			pause = oldFrame.data("pause");
+			
+			// set up the data on the frame that is now loading in the background
+			newFrame.data("pause", item.pause * 1000);
+			newFrame.data("target", item.link);
+			newFrame.data("slideId", item.id);
+		
+			oldFrame.data("timeout", setTimeout(main, pause));
+			oldFrame.bind("slideFinished", main);
+		}
+		console.log("exit queueNextItem");
+	}
+    
+    function recordHit($slideId)
+    {
+        if ( $slideId > 0 )
+        {
+            var uu = "http://" + docRoot + "/slide_viewed.php?t=" + timestamp() + "&slide=" + $slideId+ "&";
+            if( (typeof(guid) != 'undefined') && guid.length )
+            {
+                uu = uu + "guid=" + guid;
+            }
+            else if ( (typeof(user) != 'undefined') && user.length )
+            {
+                uu = uu + "user=" + user;
+            }        
+
+            console.log("recording hit via url " + uu);
+        
+            $.ajax(
+                {
+                type: "GET",			
+                url: uu,
+                cache: false
+                });
+        }
+    }
+		
+	function init()
+	{	
+        docRoot = document.location.hostname;
+        var urlVars = getUrlVars();
+        slideListUrl = "";
+        
+        if ("user_id" in urlVars)
+        {
+            user = urlVars["user_id"];
+            slideListUrl = "/user_slides.php?user_id=" + user + "&t=" + timestamp();
+        }
+        else if ("guid" in urlVars)
+        {
+            guid = urlVars["guid"];
+            slideListUrl = "/user_slides.php?guid=" + guid + "&t=" + timestamp();
+        }
+        
+        if ( slideListUrl.length == 0 )
+        {
+            console.log("Neither guid nor user values supplied");
+            setError("Illegal url parameters received");
+        }
+                
+		// create the iframes
+		createFrame(0);
+		createFrame(1);
+		
+		main();
+	}
+
+	// call init on document load
+	$(init);
+	
+</script>
+</head>
+
+<body>
+<div id="frameholder" class="frameholder">
+</div>	
+</body>
+</html>

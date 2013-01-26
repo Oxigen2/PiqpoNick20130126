@@ -1,0 +1,109 @@
+<?php
+require_once(getenv("DOCUMENT_ROOT")."/inc_piqpo.php");
+
+$templateManager = new TemplateManager();
+$tags = array();
+
+$streamManager = new StreamManager();
+
+$returnValue = new ReturnValue();
+
+// Process the POST command to add a new feed
+if ($_SERVER['REQUEST_METHOD'] == 'POST')
+{	
+	// Validate stream id
+	if (isset($_POST['stream_id']) && ctype_digit($_POST['stream_id']))
+	{
+		$streamId = $_POST['stream_id'];
+	}
+	else
+	{
+		$returnValue->addError("Stream invalid");
+	}
+
+	// Validate feed
+	if (isset($_POST['feed_id']) && ctype_digit($_POST['feed_id']))
+	{
+		$feedId = $_POST['feed_id'];
+	}
+	else
+	{
+		$returnValue->addError("Feed invalid");
+	}
+	
+	if ($returnValue->success())
+	{
+		$returnValue = $streamManager->setFeed($streamId, $feedId);
+	}
+}
+else
+{
+	// Process the GET command
+	if (isset($_GET['stream_id']))
+	{	
+		// Validate stream id
+		if (ctype_digit($_GET['stream_id']))
+		{
+			$streamId = $_GET['stream_id'];
+		}
+		else
+		{
+			$returnValue->addError("Stream invalid");
+		}
+
+		// Remove 
+		if (isset($_GET['remove_feed']) && ctype_digit($_GET['remove_feed']))
+		{
+			$feedId = $_GET['remove_feed'];
+			$streamManager->removeFeed($streamId, $feedId);
+		}
+	}
+}
+
+if (isset($streamId))
+{
+	$stream = $streamManager->getStream($streamId);
+	
+	if (!isset($stream))
+	{
+		$returnValue->addError("Stream invalid");
+	}
+	else
+	{
+		// Set the stream tags
+		$tags['stream_id'] = $stream->streamId();
+		$tags['stream_name'] = $stream->name();		
+		
+		// Set the tags for the list of feeds
+		$streamFeeds = $streamManager->getFeeds( $streamId );		
+		$tags['stream_feeds'] = array();
+		$assignedFeeds = array();
+		foreach ($streamFeeds as $streamFeed)
+		{
+			$tags['stream_feeds'][] = array('id' => $streamFeed->feedId(), 'name' => $streamFeed->name());
+			$assignedFeeds[$streamFeed->feedId()] = $streamFeed->feedId();	// keep record of assigned feeds for use below
+		}
+		
+		// Set the tags for the candidate list of feeds
+		$feedManager = new FeedManager();
+		$allFeeds = $feedManager->allFeeds();
+		$tags['candidate_feeds'] = array();
+		foreach ($allFeeds as $feed)
+		{
+			if (!isset($assignedFeeds[$feed->feedId()]))
+			{
+				$tags['candidate_feeds'][$feed->feedId()] = $feed->name();
+			}
+		}
+	}
+}
+else
+{
+	$returnValue->addError("Stream not set");
+}
+
+$tags['error'] = $returnValue->success() ? "" : $returnValue->errorText();
+
+$templateManager->publishAdminPage($tags, "stream_feed.htm");
+
+?>

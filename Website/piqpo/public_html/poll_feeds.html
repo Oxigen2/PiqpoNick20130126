@@ -1,0 +1,10 @@
+<?php
+require_once(getenv("DOCUMENT_ROOT")."/inc_piqpo.php");
+
+$feedQueueManager = new FeedQueueManager();
+
+$feedQueueManager->pollOverdueFeeds();
+
+print "Feeds polled at " . date('r');
+
+?>

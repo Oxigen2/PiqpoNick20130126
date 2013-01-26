@@ -1,0 +1,29 @@
+<?php
+require_once(getenv("DOCUMENT_ROOT")."/inc_piqpo.php");
+
+$dir = Logger::logDir();
+$files = array();
+
+foreach(new DirectoryIterator( $dir ) as $file)
+{
+    $filename = $file->getFilename();
+    if ( ($file->isFile()) && ($filename[0] != "."))
+    {
+        $files[$file->getCTime()] = array( "name" => $filename, "fullpath" => Logger::logDir( true ) . $filename, "size" => $file->getSize(), "time" => $file->getCTime() );
+    }
+}
+
+ksort( $files, SORT_NUMERIC );
+
+$ff = array();
+foreach ($files as $file)
+{
+    $ff[] = $file;
+}
+
+$tags['files'] = array_reverse( $ff );
+
+$templateManager = new TemplateManager();
+$templateManager->publishAdminPage($tags, "list_logs.htm");
+
+?>

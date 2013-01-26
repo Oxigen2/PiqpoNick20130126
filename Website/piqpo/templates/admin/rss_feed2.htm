@@ -1,0 +1,30 @@
+{--extends file="feed_root.htm"--}
+{--block name=extra_form_fields--}
+
+<div class=form_item>
+<div class=form_prompt>Feed transform file</div>
+<div class=form_input>
+{--html_options name="transform_file_1" options=$transform_files selected={--$value.transform_file_1|default:""--}--}
+ element: <input type=text style='width:100px;' name="element_1" id="element_1" value="{--$value.element_1|default:""--}" />
+<span class=error_text>{--$error.transform_1|default:""--}</span>
+</div>
+</div>
+
+<div class=form_item>
+<div class=form_prompt>Feed transform file</div>
+<div class=form_input>
+{--html_options name="transform_file_2" options=$transform_files selected={--$value.transform_file_2|default:""--}--}
+ element: <input type=text style='width:100px;' name="element_2" id="element_2" value="{--$value.element_2|default:""--}" />
+<span class=error_text>{--$error.transform_2|default:""--}</span>
+</div>
+</div>
+
+<div class=form_item>
+<div class=form_prompt>Link transform file</div>
+<div class=form_input>
+{--html_options name="link_transform_file" options=$transform_files selected={--$value.link_transform_file|default:""--}--}
+<span class=error_text>{--$error.link_transform_file|default:""--}</span>
+</div>
+</div>
+
+{--/block--}

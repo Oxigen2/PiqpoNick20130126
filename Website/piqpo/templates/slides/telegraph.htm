@@ -1,0 +1,61 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" 
+    "http://www.w3.org/TR/html4/loose.dtd"> <html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<style>
+	html
+	{
+		height: 100%;
+	}
+	body
+	{
+		height: 100%; 
+		margin: 0; 
+		padding: 0; 
+		border:0;
+	}
+	#container
+	{
+		height:100%;
+		width:100%;
+		border:0px;
+		background:#262626;
+	}
+	#int
+	{
+		position:absolute;
+		left: 10px;
+		right: 10px;
+		top: 10px;
+		bottom: 10px;
+		background:#fff;
+	} 
+	</style>
+</head>
+<body>
+<div id="container">
+<div id="int">
+	<div id="header" style="width:100%; float:left; height: 60px;">
+		<div style="text-align: left; margin-left: 5px; margin-top:5px; width: 350px; position:absolute; float:left;">
+			<image src="http://www.telegraph.co.uk/template/ver1-0/i/thetelegraph_344.gif" style="height: 50px;" />
+		</div>
+		<div style="font-family:arial, sans-serif;font-size:1.2em;padding:3px 0 5px; float:right; margin-right: 5px; margin-top:5px;">
+			{--$item.pubDate|date_format--}
+		</div>	
+	</div>
+
+	<div id="textwrapper" style="width: 100%; float:left; text-align:center; margin:0;">
+		<p style="color:#1e1e1e;font-size:2.0em;font-weight:normal;line-height:1.16em;margin:0;padding:0 0 8px;"> 
+		{--$item.title--}
+		</p>
+		<image src="{--$item.enclosure_A.url--}" />
+		<p />
+		<p style="color:#404040;font-size:1.4em;font-weight:normal;line-height:1.2em;margin:0;padding:0 0 10px;">
+		{--$item.descriptionX.text--}
+		</p>
+	</div>
+</div>
+</div>
+</body>
+</html>
+

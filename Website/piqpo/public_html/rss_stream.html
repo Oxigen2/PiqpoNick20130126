@@ -1,0 +1,134 @@
+<?php
+require_once(getenv("DOCUMENT_ROOT")."/inc_piqpo.php");
+
+$templateManager = new TemplateManager();
+$tags = array();
+
+$fileArray = $templateManager->getSlideTemplates();
+$files = array();
+foreach ($fileArray as $file)
+{
+	$files[$file] = $file;
+}
+
+$status = "";
+$error = array();
+$value = array();
+
+// Process the POST command
+if ($_SERVER['REQUEST_METHOD'] == 'POST')
+{	
+	// Validate name
+	if (isset($_POST['name']) && !empty($_POST['name']))
+	{
+		$value['name'] = htmlentities($_POST['name']);
+	}
+	else
+	{
+		$error['name'] = "Field must be set";
+	}
+
+	// Validate url
+	if (isset($_POST['url']) && !empty($_POST['url']))
+	{
+		$value['url'] = htmlentities($_POST['url']);
+	}
+	else
+	{
+		$error['url'] = "Field must be set";
+	}
+	
+	// Validate max slides
+	if (isset($_POST['max_slides']) && !empty($_POST['max_slides']))
+	{
+		if (ctype_digit($_POST['max_slides']))
+		{
+			$value['max_slides'] = $_POST['max_slides'];
+		}
+		else
+		{
+			$error['max_slides'] = "Must be blank or an integer";
+		}
+	}
+	else
+	{
+		$value['max_slides'] = "";
+	}
+	
+	// Validate template file
+	if (isset($_POST['file']))
+	{
+		if (array_key_exists($_POST['file'], $files))
+		{
+			$value['file'] = $_POST['file'];
+		}
+		else
+		{
+			$error['file'] = "Template file doesn't exist";
+		}
+	}
+	else
+	{
+		$error['file'] = "File must be supplied";
+	}
+	
+	// Validate hidden stream
+	if (isset($_POST['stream_id']))
+	{
+		if (ctype_digit($_POST['stream_id']))
+		{
+			$value['stream_id'] = $_POST['stream_id'];
+		}
+		else
+		{
+			$error['message'] = "Invalid form input";
+		}
+	}	
+	
+	if (count($error) > 0)
+	{
+		if (!isset($error['message']))
+		{
+			$error['message'] = "Correct errors on form";
+		}
+	}
+	else
+	{
+		$streamManager = new StreamManager();
+		$returnValue;
+		if (isset($value['stream_id']))
+		{
+			// This is an update
+			/*
+			if ($returnValue->success())
+			{
+				$status = "Stream updated";
+			}
+			*/
+		}
+		else
+		{
+			// This is an insert
+			$returnValue = $streamManager->addRSSStream($value['name'], $value['url'], $value['max_slides'], $value['file']);
+			if ($returnValue->success())
+			{
+				$status = "New stream inserted";
+				$value = array();
+			}
+		}
+		
+		if (!$returnValue->success())
+		{
+			$error['message'] = $returnValue->errorText();
+		}
+	}
+}
+
+$tags['files'] = $files;
+$tags['value'] = $value;
+$tags['error'] = $error;
+$tags['status'] = $status;
+
+$templateManager->publishAdminPage($tags, "rss_stream.htm");
+
+?>

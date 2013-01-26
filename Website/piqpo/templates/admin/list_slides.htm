@@ -1,0 +1,28 @@
+{--extends file="admin_root.htm"--}
+{--block name=title--}List Slides{--/block--}
+
+{--block name=body--}
+ 
+<div class="section_title">List of Slides for: {--$name--}</div>
+
+<table style="font-size: 11px; text-align: left;">    
+{--foreach $slides as $slide--}
+<tr>
+    <td>
+        <a href="/slide.php?slide={--$slide->slideId()--}">{--$slide->slideId()--}</a>
+    </td>
+    <td>
+        {--$slide->publicationDate()|date_format:"H:i-d/m"--}
+    </td>
+    <td>
+        <a href="/slide_host_test.html?slide={--$slide->slideId()--}">{--$slide->title()--}</a>        
+    </td>
+</tr>
+{--/foreach--}
+</table>
+
+<hr/>
+
+<a href="/manage_feeds.html">Return to Manage Feeds</a>
+
+{--/block--}

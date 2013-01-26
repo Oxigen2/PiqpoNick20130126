@@ -1,0 +1,118 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Slide Test</title>
+	<link href="/include/css/frameholder.css" type="text/css" rel="stylesheet" />
+	<script src="/3rd_party/jquery/jquery-1.7.1.js"></script>
+	<script src="/3rd_party/jquery/jquery.getUrlParam.js"></script>
+	<script src="/include/js/slidehost-1.1.js"></script>
+	<script>
+		$(document).ready(function(){
+			createFrame(1);
+			$("#iframe_1").bind("slideFinished", function(){$('#status1').html("Finished");});
+			$("#iframe_1").bind("slideLoading", function(){$('#status1').html("Loading");});
+			$("#iframe_1").bind("slideReady", function(){
+				if (typeof $("#iframe_1").data('startFunction') == "undefined")
+				{
+					$('#status1').html("Done");
+				}
+				else
+				{
+					$('#status1').html("Ready to start");
+					$("#start1").removeAttr('disabled');
+				}
+				});
+			$("#show1").attr('disabled','disabled');	
+			$("#start1").attr('disabled','disabled');	
+			$("#load1").click(loadSlide);
+			$("#start1").click(function(){$("#iframe_1").data('startFunction')();});
+			$("#show1").click(showSlide);
+			$("#hide1").click(hideSlide);
+			
+			loadSlide();
+		});	
+
+		function showSlide()
+		{
+			var frame = $("#iframe_1");
+		
+			var fadingOn = true;
+			if (frame.data('noFadeIn'))
+			{
+				console.log("fading turned off");		
+				fadingOn = false;
+			}
+		
+			if (fadingOn)
+			{
+				// Fade out completely, ready to fade in
+				frame.fadeOut(0);
+			}
+			frame.css('left', '0px');
+			if (fadingOn)
+			{
+				frame.fadeIn( 1000 );
+			}
+						
+			$("#show1").attr('disabled','disabled');
+			$("#hide1").removeAttr('disabled');
+		}
+		
+		function hideSlide()
+		{
+			$("#iframe_1").fadeOut(1000, function(){
+				$("#iframe_1").css('left', '-3000px');
+				$("#iframe_1").fadeIn(0);
+
+				$("#hide1").attr('disabled','disabled');
+				$("#show1").removeAttr('disabled');			
+			});
+		}				
+		
+		function loadSlide()
+		{
+			var url = null;
+			var slide = $(document).getUrlParam("slide");
+			if (slide != null)
+			{
+				url = "/slide.php?slide=" + slide;
+			}
+			else
+			{
+				url = $(document).getUrlParam("url");
+			}
+			if (url != null)
+			{
+				loadFrame("iframe_1", url);
+			}
+			else
+			{
+				$('#status1').html("No slide found");
+			}
+		}
+		
+	</script>
+	<style>
+		.controls
+		{
+			position: absolute; bottom: 0px; left: 0px; 
+			color: #fff;
+			background-color: #000;
+		}
+	</style>
+</head>
+<body>
+	<div id="frameholder" class="frameholder">
+	</div>
+		
+	<div id="controls" class="controls">
+		<button id="load1">Reload</button>
+		<button id="show1">Show</button>
+		<button id="hide1">Hide</button>
+		<button id="start1">Start</button>
+		Status: <span id="status1"></span>
+	</div>
+</body>
+</html>
+

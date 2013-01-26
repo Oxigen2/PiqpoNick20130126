@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script type="text/javascript" src="/3rd_party/jquery/jquery-1.7.1.js"></script>
+        <title>API Test</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <style>
+        html {     
+            width: 100%;
+            height: 100%;
+            position: absolute;
+        }
+        pre {outline: 1px solid #ccc; padding: 5px; margin: 5px; background: lightcyan; }
+        .string { color: green; }
+        .number { color: darkorange; }
+        .boolean { color: blue; }
+        .null { color: magenta; }
+        .key { color: red; }
+    </style>
+    <script>
+        
+    function syntaxHighlight(json) 
+    {
+        if (typeof json != 'string') 
+        {
+            json = JSON.stringify(json, undefined, 2);
+        }
+        json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+            var cls = 'number';
+            if (/^"/.test(match)) {
+                if (/:$/.test(match)) {
+                    cls = 'key';
+                } else {
+                    cls = 'string';
+                }
+            } else if (/true|false/.test(match)) {
+                cls = 'boolean';
+            } else if (/null/.test(match)) {
+                cls = 'null';
+            }
+            return '<span class="' + cls + '">' + match + '</span>';
+        });
+    }
+
+    function apiSuccess( resp )
+    {
+        try
+        {
+            obj = jQuery.parseJSON( resp );
+            $("#results").append( "<pre>" + syntaxHighlight(resp) + "</pre>" );                        
+        }
+        catch(err)
+        {
+            $("#results").append( resp );            
+        }
+    }    
+        
+    function apiFailure( request, status )
+    {
+        $("#results").append( "API call failure : " + status + "<br/>" );
+    }    
+    
+    function callAPI( method, params )
+    {
+        params.command = method;
+        $.ajax(
+            {
+            type: "GET",			
+            url: "/api/handler.php",
+            data: params,
+            cache: false,
+            success: apiSuccess,
+            error: apiFailure
+            });
+    }
+   
+{--foreach $commands as $command--}
+    function call_{--$command.command--}( )
+    {
+        var params = new Object;
+        
+{--foreach $command.inputs as $input--}
+        pp = $("#{--$command.command--}_{--$input.name--}").val();
+        if ( pp != "" )
+        {
+            params.{--$input.name--} = pp;
+        }
+{--/foreach--}
+        
+        callAPI( "{--$command.command--}", params );
+    }
+    
+{--/foreach--}        
+
+
+    </script>
+    </head>   
+    
+    <body >
+        <div id="commands" style="width: 49%; position: absolute; left: 0; top: 0; bottom: 0; overflow-y: auto;">
+            
+        {--foreach $commands as $command--}
+            <button onclick="call_{--$command.command--}()">Go</button>
+            <span style="font-weight: bold;"> {--$command.command--}</span> - {--$command.description--}<br/>            
+            {--foreach $command.inputs as $input--}
+            <p id="p_{--$command.command--}_{--$input.name--}" style='text-align: right;'>
+                <span style="padding: 2px;">{--$input.name--}</span>
+                <input style="margin-right: 5px; width: 80%; float: right;" id="{--$command.command--}_{--$input.name--}" />
+            </p>
+            {--/foreach--}
+            
+            <hr />
+        {--/foreach--}        
+        
+        </div>
+        <div id="results" style="width: 49%; position: absolute; right: 0; top: 0; bottom: 0; overflow-y: auto;"> 
+        </div>
+    </body>
+</html>

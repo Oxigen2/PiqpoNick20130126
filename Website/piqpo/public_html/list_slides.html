@@ -1,0 +1,37 @@
+<?php
+require_once(getenv("DOCUMENT_ROOT")."/inc_piqpo.php");
+
+$tags = array();
+
+$slides = array();
+$name = "";
+
+if (isset($_GET['stream']) && ctype_digit($_GET['stream']))
+{
+	$streamId = $_GET['stream'];
+	
+	$stream = Stream::loadSingleFromDB($streamId);
+	$name = $stream->name();
+
+	$streamManager = new StreamManager();
+	$slides = $streamManager->streamSlideIds($streamId);
+}
+
+if (isset($_GET['feed']) && ctype_digit($_GET['feed']))
+{
+	$feedId = $_GET['feed'];
+	
+	$feed = Feed::loadSingleFromDB($feedId);
+	$name = $feed->name();
+
+	$feedManager = new FeedManager();
+	$slides = $feedManager->feedSlides($feedId, true);
+}
+
+$tags['slides'] = $slides;
+$tags['name'] = $name;
+
+$templateManager = new TemplateManager();
+$templateManager->publishAdminPage($tags, "list_slides.htm");
+
+?>

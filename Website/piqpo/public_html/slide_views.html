@@ -1,0 +1,27 @@
+<?php
+require_once(getenv("DOCUMENT_ROOT")."/inc_piqpo.php");
+
+$action = "none";
+$count = 50;
+
+$slideStatsManager = new SlideStatsManager();
+
+$results = array();
+
+if ( isset($_GET['views']) )
+{
+    $results = $slideStatsManager->recentSlideViews( $count );
+    $action = "views";
+}
+else if ( isset($_GET['follows']) )
+{
+    $results = $slideStatsManager->recentSlideFollows( $count );    
+    $action = "follows";
+}
+
+$tags = array ("count" => $count, "action" => $action, "results" => $results);
+
+$templateManager = new TemplateManager();
+$templateManager->publishAdminPage($tags, "slide_views.htm");
+
+?>

@@ -1,0 +1,68 @@
+{--extends file="admin_root.htm"--}
+{--block name=title--}Feed Admin{--/block--}
+
+{--block name=body--}
+
+<div class="section_title">{--if isset($value.feed_id)--}Modify Feed{--else--}Add Feed{--/if--}</div>
+
+<form class=form action="{--$smarty.server.SCRIPT_NAME--}" method="POST" name="add_rss">
+
+<div class=form_item>
+<div class=form_prompt>Feed name</div>
+<div class=form_input>
+<input type=text style='width:250px;' name="name" id="name" value="{--$value.name|default:""--}" />
+<span class=error_text>{--$error.name|default:""--}</span>
+</div>
+</div>
+
+<div class=form_item>
+<div class=form_prompt>Template file</div>
+<div class=form_input>
+{--html_options name="template_file" options=$template_files selected={--$value.template_file|default:""--}--}
+<span class=error_text>{--$error.file|default:""--}</span>
+</div>
+</div>
+
+<div class=form_item>
+<div class=form_prompt>Maximum slides</div>
+<div class=form_input>
+<input type=text style='width:100px;' name="max_slides" id="max_slides" value="{--$value.max_slides|default:""--}" />
+<span class=error_text>{--$error.max_slides|default:""--}</span>
+</div>
+</div>
+
+<div class=form_item>
+<div class=form_prompt>Poll frequency (sec)</div>
+<div class=form_input>
+<input type=text style='width:100px;' name="poll_frequency" id="poll_frequency" value="{--$value.poll_frequency|default:""--}" />
+<span class=error_text>{--$error.poll_frequency|default:""--}</span>
+</div>
+</div>
+
+<div class=form_item>
+<div class=form_prompt>Slide pause (sec)</div>
+<div class=form_input>
+<input type=text style='width:100px;' name="slide_pause" id="slide_pause" value="{--$value.slide_pause|default:""--}" />
+<span class=error_text>{--$error.slide_pause|default:""--}</span>
+</div>
+</div>
+
+{--block name=extra_form_fields--}{--/block--}
+
+{--if isset($value.feed_id)--}
+<input type=hidden name="feed_id" id="feed_id" value="{--$value.feed_id--}" />
+{--/if--}
+
+<div class=form_item>
+<div class=form_prompt></div>
+<div class=form_input><input type=submit name="addRSSFeed" value="{--if isset($value.feed_id)--}Update{--else--}Add{--/if--}" /></div>
+</div>
+
+</form>
+
+<div class=block />
+
+<span class=error_text>{--$error.message|default:""--}</span>
+<span class=change_status>{--$status|default:""--}</span>
+
+{--/block--}

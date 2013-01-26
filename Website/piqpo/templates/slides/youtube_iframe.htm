@@ -1,0 +1,88 @@
+<!doctype html>
+<html>
+	<head>
+		<style>
+			html
+			{
+				height: 100%;
+			}
+			body
+			{
+				height: 100%;
+				margin: 0; 
+				padding: 10px; 
+				border:0;				
+			}
+			
+		</style>
+		<script src="/include/js/piqpo_slide-1.1.js"></script>	
+		<script src="/3rd_party/jquery/jquery-1.7.1.js"></script>
+		<script>
+			// Load the IFrame Player API code asynchronously.
+			var tag = document.createElement('script');
+			tag.src = "http://www.youtube.com/player_api";
+			var firstScriptTag = document.getElementsByTagName('script')[0];
+			firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+			
+			// Creates a <iframe> (and YouTube player) after the API code downloads.
+			var ready = false;
+			var player;
+			function onYouTubePlayerAPIReady() 
+			{
+				var id = "{--$item.id--}";
+				var ar = id.split('/');
+				var vid = ar[ar.length-1];
+				var dd = browserDimensions();
+				slideSetStartFunction(playVideo, (!ready));
+				player = new YT.Player('player', {
+					height: dd.height - 40,
+					width: dd.width,
+					videoId: vid,
+					playerVars: { 'controls': 0,
+								  'rel': 0,
+								  'showinfo': 0},
+					events: {
+						'onReady': nowReady,	
+						'onStateChange': onPlayerStateChange
+					}
+				});
+			}
+			
+			function nowReady()
+			{
+				ready = true;
+				slideReady();
+			}
+
+			// The API will call this function when the video player is ready.
+			function playVideo() 
+			{
+				if (ready)
+				{
+					player.mute();
+					player.playVideo();
+				}
+			}
+
+			// The API calls this function when the player's state changes.			
+			function onPlayerStateChange(event) 
+			{
+				if (event.data == YT.PlayerState.ENDED) 
+				{
+					slideFinished();
+				}
+			}
+			
+	</script>
+
+	</head>
+  <body>
+	<div style="width: 100%; height: 20px; color: #fff; background-color: #000; ">
+		<div style="font-size: 75%; width: 20%; float: left;">{--$channel.title--}</div>
+		<div style="font-size: 125%; float:left; text-align: center; width: 60%;">{--$item.title--}</div>
+		<div style="font-size: 75%; width:20%;float: left;text-align:right;">{--$item.updated|date_format--}</div>
+	</div>
+    <!-- The <iframe> (and video player) will replace this <div> tag. -->
+    <div id="player"></div>
+  </body>
+</html>
